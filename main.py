@@ -4,8 +4,6 @@ from flask import Flask, request, redirect, send_file
 from skimage import io
 import base64
 import numpy as np
-from googleapiclient.discovery import build
-from google.oauth2 import service_account
 
 app = Flask(__name__)
 
