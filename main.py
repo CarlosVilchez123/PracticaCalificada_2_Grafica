@@ -1,8 +1,9 @@
 import tempfile
 import os
 from flask import Flask, request, redirect, send_file
-from skimage import io
+from skimage import io, transform
 import base64
+import glob
 import numpy as np
 
 app = Flask(__name__)
@@ -89,16 +90,40 @@ main_html = """
 		<canvas id="myCanvas" width="200" height="200" style="border:2px solid black"></canvas>
 		<br/>
 		<br/>
-		<div id="botones">
-			<button onclick="javascript:clearArea();return false;">Borrar</button>
+		<div id="botones1">
+		      <button onclick="javascript:clearArea();return false;">Borrar</button>
 		      <form method="post" action="upload" onsubmit="javascript:prepareImg();"  enctype="multipart/form-data">
-		      <input id="numero" name="numero" type="hidden" value="">
-		      <input id="myImage" name="myImage" type="hidden" value="">
-		      <input id="bt_upload" type="submit" value="Enviar">
-		      </form>      
+			      <input id="numero" name="numero" type="hidden" value="">
+			      <input id="myImage" name="myImage" type="hidden" value="">
+			      <input id="bt_upload" type="submit" value="Enviar">
+		      </form>
 	    	</div>
+	    	
+		<div id="botones2">
+			<form method="get" action="prepare" onsubmit="javascript:prepareImg();"  enctype="multipart/form-data">
+			      <input id="numero" name="numero" type="hidden" value="">
+			      <input id="myImage" name="myImage" type="hidden" value="">
+			      <input id="bt_upload" type="submit" value="prepara datos">
+		      </form>
+		      <form method="get" action="X.npy" onsubmit="javascript:prepareImg();"  enctype="multipart/form-data">
+			      <input id="numero" name="numero" type="hidden" value="">
+			      <input id="myImage" name="myImage" type="hidden" value="">
+			      <input id="bt_upload" type="submit" value="descargar x">
+		      </form>
+		      <form method="get" action="y.npy" onsubmit="javascript:prepareImg();"  enctype="multipart/form-data">
+			      <input id="numero" name="numero" type="hidden" value="">
+			      <input id="myImage" name="myImage" type="hidden" value="">
+			      <input id="bt_upload" type="submit" value="decargar y">
+		      </form>
+		</div>
+		
+		
 		
 	    </div>
+	    
+	    <div id="imagen" align="center">
+      		<img src="https://marcjapan.files.wordpress.com/2007/02/kanji2x.JPG" width="300"/>
+    	    </div>
 	</body>
 </html>
 
@@ -123,7 +148,32 @@ def upload():
         print(err)
 
     return redirect("/", code=302)
+    
+@app.route('/prepare', methods=['GET'])
+def prepare_dataset():
+    images = []
+    d = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]
+    digits = []
+    for digit in d:
+      filelist = glob.glob('{}/*.png'.format(digit))
+      images_read = io.concatenate_images(io.imread_collection(filelist))
+      images_read = images_read[:, :, :, 3]
+      digits_read = np.array([digit] * images_read.shape[0])
+      images.append(images_read)
+      digits.append(digits_read)
+    images = np.vstack(images)
+    digits = np.concatenate(digits)
+    np.save('X.npy', images)
+    np.save('y.npy', digits)
+    return "EL DATA SET HA SIDO PROCESADO :3"
 
+@app.route('/X.npy', methods=['GET'])
+def download_X():
+    return send_file('./X.npy')
+@app.route('/y.npy', methods=['GET'])
+def download_y():
+    return send_file('./y.npy')
+    
 if __name__ == "__main__":
     
     digits = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]

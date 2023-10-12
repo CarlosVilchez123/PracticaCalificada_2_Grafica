@@ -11,10 +11,22 @@ body {
     margin: 0 auto;
     display: block;
 }
-#botones{
+#botones1{
 	display:flex;
 	margin-left:816px;
 	padding: 10px;
+}
+
+#botones2{
+	display:flex;
+	margin-left:730px;
+}
+#imagen img {
+    width: 600px; /* Establece el ancho deseado, por ejemplo, 300 píxeles */
+    height: 400px; /* Establece el alto deseado, por ejemplo, 200 píxeles */
+}
+form{
+    margin-right:10px;
 }
 button {
     padding: 10px 20px;
