@@ -11,6 +11,7 @@ Participantes:
 el funcionamiento de la pagina es el siguiente, permite poder subir dibujos (los dias de la semana en kanjis), los botones de descarga son para poder descargar los archivos .npy que se usan para el entrenamiento, preparar datos solamente crea los archivos .npy, en caso se hayan agregado mas imagenes.
 
 Originalmente se tenia previsto que se haga una prediccion directa de los dibujos ingresados, pero por falta de conocimiento no se pudo implementar dicha funcion. Para poder revisar de mejor manera el codigo del modelo se presenta el siguien colab: https://colab.research.google.com/drive/18NJzlDaRkXnYFEg4wr-Le_EnQ_XRZUm8?usp=sharing
+![](https://github.com/CarlosVilchez123/PracticaCalificada_2_Grafica/blob/main/Imagines/identificador.png)
 
 Sin embargo, para el uso de los archivos .npy la creacion de la pagina nos ayudo mucho; ya que, nos evitamos tener que crear un data set de forma manual.
 
