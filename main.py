@@ -140,20 +140,16 @@ main_html = """
 def execute_ipynb():
     with open("Entrenamiento.ipynb") as f:
         nb = nbformat.read(f, as_version=4)
-    return "no sè"
-    """
-    # Crea un objeto ExecutePreprocessor para ejecutar el código
     ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
-
+	
     # Ejecuta el cuaderno
     ep.preprocess(nb, {'metadata': {'path': './'}})
-
     # Exporta el resultado como HTML (opcional)
     html_exporter = HTMLExporter()
     (body, resources) = html_exporter.from_notebook_node(nb)
 
-    return body
-	"""
+    return "no sè"
+
 @app.route("/")
 def main():
     return(main_html)
