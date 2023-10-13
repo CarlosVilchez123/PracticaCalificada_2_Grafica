@@ -15,3 +15,5 @@ Originalmente se tenia previsto que se haga una prediccion directa de los dibujo
 Sin embargo, para el uso de los archivos .npy la creacion de la pagina nos ayudo mucho; ya que, nos evitamos tener que crear un data set de forma manual.
 
 Link de la pagina desplagada: https://web-production-df74.up.railway.app/
+
+![](https://github.com/CarlosVilchez123/PracticaCalificada_2_Grafica/blob/main/Imagines/pagina.png)
