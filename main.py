@@ -118,7 +118,7 @@ main_html = """
 			      <input id="myImage" name="myImage" type="hidden" value="">
 			      <input id="bt_upload" type="submit" value="decargar y">
 		      </form>
-              <form method="post" action="prediction" onsubmit="javascript:prepareImg();"  enctype="multipart/form-data">
+              <form method="get" action="prediction" onsubmit="javascript:prepareImg();"  enctype="multipart/form-data">
 			      <input id="numero" name="numero" type="hidden" value="">
 			      <input id="myImage" name="myImage" type="hidden" value="">
 			      <input id="bt_upload" type="submit" value="Entrenar y predice">
@@ -136,7 +136,7 @@ main_html = """
 </html>
 
 """
-@app.route("/prediction", methods=['POST'])
+@app.route("/prediction", methods=['GET'])
 def execute_ipynb():
     with open("Entrenamiento.ipynb") as f:
         nb = nbformat.read(f, as_version=4)
