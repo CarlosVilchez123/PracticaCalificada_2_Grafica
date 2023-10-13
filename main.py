@@ -1,13 +1,16 @@
 import tempfile
 import os
 from flask import Flask, request, redirect, send_file
-from skimage import io, transform
+from skimage import io
+from skimage.transform import resize
 import base64
 import glob
 import numpy as np
-import nbformat
-from nbconvert.preprocessors import ExecutePreprocessor
-from nbconvert import HTMLExporter
+from sklearn.model_selection import train_test_split
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, MaxPool2D, Flatten
+from keras.optimizers import SGD
+from PIL import Image
 
 app = Flask(__name__)
 
@@ -135,20 +138,62 @@ main_html = """
 	</body>
 </html>
 
-"""
+""" 
 @app.route("/prediction", methods=['POST'])
-def execute_ipynb():
-    with open("Entrenamiento.ipynb") as f:
-        nb = nbformat.read(f, as_version=4)
-    ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
-	
-    # Ejecuta el cuaderno
-    ep.preprocess(nb, {'metadata': {'path': './'}})
-    # Exporta el resultado como HTML (opcional)
-    html_exporter = HTMLExporter()
-    (body, resources) = html_exporter.from_notebook_node(nb)
+def execute():
+    try:
+        img_data = request.form.get('myImage').replace("data:image/png;base64,", "")
+        aleatorio = request.form.get('numero')
+        file_name = aleatorio + '_image.png'
+        with tempfile.NamedTemporaryFile(delete=False, mode="w+b", suffix='.png', dir=str(aleatorio)) as fh:
+            fh.write(base64.b64decode(img_data))
+        print(f"Image uploaded {file_name}")
+    except Exception as err:
+        print("Error occurred")
+        print(err)
 
-    return "no sè"
+    X_raw = np.load('X.npy')
+    X_raw = X_raw/255.
+    y = np.load('y.npy')
+    X = []
+    size = (28, 28)
+    for x in X_raw:
+        X.append(resize(x, size))
+    X = np.array(X)
+    y_n = np.empty((y.shape[0]))
+    day_mapping = {'Lunes': 0, 'Martes': 1, 'Miercoles': 2, 'Jueves': 3, 'Viernes': 4, 'Sabado': 5, 'Domingo': 6}
+    for i in range(y.shape[0]):
+        if y[i] in day_mapping:
+            y_n[i] = day_mapping[y[i]]
+    X_train, X_test, y_train, y_test = train_test_split(X, y_n, test_size=0.20, random_state=42, stratify=y)
+
+    if X_train.ndim == 3:
+        X_train = X_train[..., None]
+        X_test = X_test[..., None]
+    bs = 16
+    lr = 0.0005
+    model = Sequential([Conv2D(32, 3, activation='relu', input_shape=(*size, 1)),
+                        MaxPool2D(),
+                        Conv2D(64, 3, activation='relu', padding='same'),
+                        MaxPool2D(),
+                        Conv2D(128, 3, activation='relu', padding='same'),
+                        MaxPool2D(),
+                        Flatten(),
+                        Dense(128, activation='relu'),  # modificar
+                        Dense(7, activation='softmax')])  # no modificar
+
+    optimizer1 = SGD(learning_rate=lr)
+    model.compile(optimizer=optimizer1, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+    model.summary()
+    log = model.fit(X_train, y_train, batch_size=bs, epochs=400, validation_data=(X_test, y_test))
+    
+    idx = np.random.choice(X_test.shape[0], 1)[0]
+    im = X_test[idx]
+    label = y_test[idx]
+    
+    salida = model.predict(im[None, :, :, :])[0]
+    return "se predijo el dato de forma exitosa str(im) -> str(salida.argmax())"
 
 @app.route("/")
 def main():
