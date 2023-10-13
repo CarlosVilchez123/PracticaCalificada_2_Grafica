@@ -10,7 +10,6 @@ from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, MaxPool2D, Flatten
 from keras.optimizers import SGD
-from PIL import Image
 
 app = Flask(__name__)
 
