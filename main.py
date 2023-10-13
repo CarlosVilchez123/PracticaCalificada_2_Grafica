@@ -5,6 +5,9 @@ from skimage import io, transform
 import base64
 import glob
 import numpy as np
+import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert import HTMLExporter
 
 app = Flask(__name__)
 
@@ -115,6 +118,11 @@ main_html = """
 			      <input id="myImage" name="myImage" type="hidden" value="">
 			      <input id="bt_upload" type="submit" value="decargar y">
 		      </form>
+              <form method="post" action="prediction" onsubmit="javascript:prepareImg();"  enctype="multipart/form-data">
+			      <input id="numero" name="numero" type="hidden" value="">
+			      <input id="myImage" name="myImage" type="hidden" value="">
+			      <input id="bt_upload" type="submit" value="Entrenar y predice">
+		      </form>
 		</div>
 		
 		
@@ -128,6 +136,22 @@ main_html = """
 </html>
 
 """
+@app.route("/prediction", methods=['POST'])
+def execute_ipynb():
+    with open("Entrenamiento.ipynb") as f:
+        nb = nbformat.read(f, as_version=4)
+
+    # Crea un objeto ExecutePreprocessor para ejecutar el código
+    ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
+
+    # Ejecuta el cuaderno
+    ep.preprocess(nb, {'metadata': {'path': './'}})
+
+    # Exporta el resultado como HTML (opcional)
+    html_exporter = HTMLExporter()
+    (body, resources) = html_exporter.from_notebook_node(nb)
+
+    return body
 
 @app.route("/")
 def main():
